@@ -10,7 +10,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Microsoft
     {
     }
 
-    public DbSet<Class> Classes => Set<Class>();
+    public DbSet<SchoolClass> Classes => Set<SchoolClass>();
     public DbSet<Subject> Subjects => Set<Subject>();
     public DbSet<TeacherSubjectAssignment> TeacherSubjectAssignments => Set<TeacherSubjectAssignment>();
     public DbSet<Assignment> Assignments => Set<Assignment>();
@@ -20,7 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Microsoft
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<Class>(entity =>
+        builder.Entity<SchoolClass>(entity =>
         {
             entity.Property(c => c.Name).IsRequired().HasMaxLength(200);
             entity.Property(c => c.Section).HasMaxLength(50);

@@ -12,7 +12,7 @@ public class Assignment
     public Subject Subject { get; set; } = null!;
 
     public Guid ClassId { get; set; }
-    public Class Class { get; set; } = null!;
+    public SchoolClass Class { get; set; } = null!;
 
     public Guid CreatedByTeacherId { get; set; }
     public ApplicationUser CreatedByTeacher { get; set; } = null!;

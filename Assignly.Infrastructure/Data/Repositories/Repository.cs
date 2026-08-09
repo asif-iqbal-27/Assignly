@@ -1,27 +1,28 @@
 using Assignly.Application.Interfaces;
-using Assignly.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Assignly.Infrastructure.Data.Repositories;
 
 public class Repository<T> : IRepository<T> where T : class
 {
-    private readonly ApplicationDbContext _db;
+    private readonly ApplicationDbContext _dbContext;
+    private readonly DbSet<T> _dbSet;
 
-    public Repository(ApplicationDbContext db)
+    public Repository(ApplicationDbContext dbContext)
     {
-        _db = db;
+        _dbContext = dbContext;
+        _dbSet = dbContext.Set<T>();
     }
 
-    public IQueryable<T> Query() => _db.Set<T>().AsQueryable();
+    public IQueryable<T> Query() => _dbSet.AsQueryable();
 
     public Task<T?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
-        _db.Set<T>().FindAsync([id], ct).AsTask();
+        _dbSet.FindAsync([id], ct).AsTask();
 
     public async Task AddAsync(T entity, CancellationToken ct = default) =>
-        await _db.Set<T>().AddAsync(entity, ct);
+        await _dbSet.AddAsync(entity, ct);
 
-    public void Remove(T entity) => _db.Set<T>().Remove(entity);
+    public void Remove(T entity) => _dbSet.Remove(entity);
 
-    public Task<int> SaveChangesAsync(CancellationToken ct = default) => _db.SaveChangesAsync(ct);
+    public Task<int> SaveChangesAsync(CancellationToken ct = default) => _dbContext.SaveChangesAsync(ct);
 }

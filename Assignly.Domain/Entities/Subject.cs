@@ -6,7 +6,7 @@ public class Subject
     public string Name { get; set; } = string.Empty;
 
     public Guid ClassId { get; set; }
-    public Class Class { get; set; } = null!;
+    public SchoolClass Class { get; set; } = null!;
 
     public ICollection<TeacherSubjectAssignment> TeacherAssignments { get; set; } = new List<TeacherSubjectAssignment>();
     public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
