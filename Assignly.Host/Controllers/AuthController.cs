@@ -6,9 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Assignly.Host.Controllers;
 
-[ApiController]
 [Route("api/auth")]
-public class AuthController : ControllerBase
+public class AuthController : BaseApiController
 {
     private readonly IMediator _mediator;
 
@@ -24,11 +23,6 @@ public class AuthController : ControllerBase
         var command = new LoginCommand(request.UserName, request.Password);
         var result = await _mediator.Send(command, cancellationToken);
 
-        if (result.IsError)
-        {
-            return BadRequest(new { errors = result.Errors });
-        }
-
-        return Ok(result.Value);
+        return HandleResult(result);
     }
 }

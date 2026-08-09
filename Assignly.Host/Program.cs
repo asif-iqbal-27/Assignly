@@ -4,7 +4,9 @@ using Assignly.Application.Features.Auth.Login;
 using Assignly.Application.Interfaces;
 using Assignly.Domain.Entities;
 using Assignly.Domain.Enums;
+using Assignly.Host.Middleware;
 using Assignly.Infrastructure.Data;
+using Assignly.Infrastructure.Data.Repositories;
 using Assignly.Infrastructure.Services;
 using FluentValidation;
 using MediatR;
@@ -66,6 +68,7 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Login
 builder.Services.AddValidatorsFromAssemblyContaining<LoginCommand>();
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 var app = builder.Build();
 
@@ -106,6 +109,8 @@ using (var scope = app.Services.CreateScope())
         app.Logger.LogWarning(ex, "Database initialization skipped because PostgreSQL is unavailable. Swagger and the auth endpoint remain available for local testing.");
     }
 }
+
+app.UseMiddleware<GlobalExceptionHandler>();
 
 if (app.Environment.IsDevelopment())
 {
