@@ -37,18 +37,22 @@ public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, AuthResp
             return Error.Unauthorized(description: "Invalid username or password.");
         }
 
+        if (user.Role is null)
+        {
+            return Error.Unauthorized(description: "User has no assigned role.");
+        }
+
         var tokenResult = await _userService.GenerateTokenAsync(user);
         if (tokenResult.IsError)
         {
             return tokenResult.Errors;
         }
 
-        var roleName = user.Role?.ToString() ?? "Student";
         return new AuthResponseDto
         {
             Token = tokenResult.Value,
             UserName = user.UserName ?? string.Empty,
-            Role = roleName
+            Role = user.Role.Value.ToString()
         };
     }
 }

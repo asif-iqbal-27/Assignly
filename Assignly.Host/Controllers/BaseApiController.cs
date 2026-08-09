@@ -9,8 +9,11 @@ namespace Assignly.Host.Controllers;
 [Authorize]
 public abstract class BaseApiController : ControllerBase
 {
+    protected Guid? UserIdOrNull =>
+        Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
+
     protected Guid CurrentUserId =>
-        Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        UserIdOrNull ?? throw new UnauthorizedAccessException("Missing or invalid user id claim.");
 
     protected IActionResult HandleResult<T>(ErrorOr<T> result)
     {
@@ -29,6 +32,8 @@ public abstract class BaseApiController : ControllerBase
             ErrorType.NotFound => StatusCode(StatusCodes.Status404NotFound, body),
             ErrorType.Conflict => StatusCode(StatusCodes.Status409Conflict, body),
             ErrorType.Validation => StatusCode(StatusCodes.Status400BadRequest, body),
+            ErrorType.Unexpected => StatusCode(StatusCodes.Status500InternalServerError, body),
+            ErrorType.Failure => StatusCode(StatusCodes.Status500InternalServerError, body),
             _ => StatusCode(StatusCodes.Status400BadRequest, body)
         };
     }

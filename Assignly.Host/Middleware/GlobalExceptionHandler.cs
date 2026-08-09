@@ -22,19 +22,35 @@ public class GlobalExceptionHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception while processing {Method} {Path}", context.Request.Method, context.Request.Path);
-
-            var problemDetails = new ProblemDetails
+            if (context.Response.HasStarted)
             {
-                Status = StatusCodes.Status500InternalServerError,
-                Title = "An unexpected error occurred.",
-                Detail = "Please contact support if the problem persists.",
-                Instance = context.Request.Path
-            };
+                throw;
+            }
 
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            context.Response.ContentType = "application/problem+json";
-            await context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails));
+            if (ex is UnauthorizedAccessException)
+            {
+                _logger.LogWarning(ex, "Unauthorized access while processing {Method} {Path}", context.Request.Method, context.Request.Path);
+                await WriteProblemAsync(context, StatusCodes.Status401Unauthorized, "Unauthorized.", ex.Message);
+                return;
+            }
+
+            _logger.LogError(ex, "Unhandled exception while processing {Method} {Path}", context.Request.Method, context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status500InternalServerError, "An unexpected error occurred.", "Please contact support if the problem persists.");
         }
+    }
+
+    private static Task WriteProblemAsync(HttpContext context, int statusCode, string title, string detail)
+    {
+        var problemDetails = new ProblemDetails
+        {
+            Status = statusCode,
+            Title = title,
+            Detail = detail,
+            Instance = context.Request.Path
+        };
+
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/problem+json";
+        return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails));
     }
 }

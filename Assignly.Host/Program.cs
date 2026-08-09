@@ -75,38 +75,36 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    try
+
+    if (app.Environment.IsDevelopment())
     {
         await db.Database.MigrateAsync();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        foreach (var roleName in new[] { "Admin", "Teacher", "Student" })
+    }
+
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    foreach (var roleName in new[] { "Admin", "Teacher", "Student" })
+    {
+        if (!await roleManager.RoleExistsAsync(roleName))
         {
-            if (!await roleManager.RoleExistsAsync(roleName))
-            {
-                await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
-            }
-        }
-        var admin = await userManager.FindByNameAsync("admin");
-        if (admin is null)
-        {
-            admin = new ApplicationUser
-            {
-                UserName = "admin",
-                Email = "admin@assignly.local",
-                FullName = "System Administrator",
-                Role = RoleType.Admin
-            };
-            var result = await userManager.CreateAsync(admin, "Admin123!");
-            if (result.Succeeded)
-            {
-                await userManager.AddToRoleAsync(admin, "Admin");
-            }
+            await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
         }
     }
-    catch (Exception ex)
+    var admin = await userManager.FindByNameAsync("admin");
+    if (admin is null)
     {
-        app.Logger.LogWarning(ex, "Database initialization skipped because PostgreSQL is unavailable. Swagger and the auth endpoint remain available for local testing.");
+        admin = new ApplicationUser
+        {
+            UserName = "admin",
+            Email = "admin@assignly.local",
+            FullName = "System Administrator",
+            Role = RoleType.Admin
+        };
+        var result = await userManager.CreateAsync(admin, "Admin123!");
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(admin, "Admin");
+        }
     }
 }
 

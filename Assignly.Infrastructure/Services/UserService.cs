@@ -20,6 +20,11 @@ public class UserService : IUserService
 
     public Task<ErrorOr<string>> GenerateTokenAsync(ApplicationUser user)
     {
+        if (user.Role is null)
+        {
+            return Task.FromResult<ErrorOr<string>>(Error.Unauthorized(description: "User has no assigned role."));
+        }
+
         var issuer = _configuration["Jwt:Issuer"] ?? "Assignly";
         var audience = _configuration["Jwt:Audience"] ?? "AssignlyClients";
         var keyValue = _configuration["Jwt:Key"] ?? "replace-with-a-strong-secret-key";
@@ -29,7 +34,7 @@ public class UserService : IUserService
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.UserName ?? string.Empty),
-            new(ClaimTypes.Role, user.Role?.ToString() ?? "Student")
+            new(ClaimTypes.Role, user.Role.Value.ToString())
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor
