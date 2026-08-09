@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Assignly.Application/Assignly.Application.csproj" />
+  <Project Path="Assignly.Domain/Assignly.Domain.csproj" />
+  <Project Path="Assignly.Host/Assignly.Host.csproj" />
+  <Project Path="Assignly.Infrastructure/Assignly.Infrastructure.csproj" />
+</Solution>

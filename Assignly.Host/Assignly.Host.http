@@ -1,0 +1,16 @@
+@HostAddress = http://localhost:5058
+
+### Login as the seeded Admin - returns a JWT
+# @name login
+POST {{HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "userName": "admin",
+  "password": "Admin123!"
+}
+
+### Capture the token from the login response for use in later requests
+@authToken = {{login.response.body.token}}
+
+###

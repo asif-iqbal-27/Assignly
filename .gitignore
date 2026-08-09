@@ -1,0 +1,32 @@
+# Agent instructions / planning docs — not part of the deliverable
+CLAUDE.md
+AGENTS.md
+.github/
+docs/
+
+# .NET build output
+bin/
+obj/
+*.user
+
+# Local secrets / environment-specific config (commit appsettings.Example.json instead)
+Assignly.Host/appsettings.json
+Assignly.Host/appsettings.Development.json
+Assignly.Host/appsettings.Production.json
+*.env
+.env
+.env.local
+
+# Node / Next.js (frontend, once added)
+node_modules/
+.next/
+out/
+frontend/.env*
+
+# IDE / OS
+.vs/
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
