@@ -65,7 +65,7 @@ public sealed class GetAssignmentByIdQueryHandler : IQueryHandler<GetAssignmentB
         {
             return AssignmentErrors.NotFound(request.Id);
         }
-
+        
         return assignment;
     }
 }

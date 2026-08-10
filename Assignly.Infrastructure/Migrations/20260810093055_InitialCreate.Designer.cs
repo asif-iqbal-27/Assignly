@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Assignly.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260810042208_RenameTeacherSubjectAssignmentToClassSubjectTeacher")]
-    partial class RenameTeacherSubjectAssignmentToClassSubjectTeacher
+    [Migration("20260810093055_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

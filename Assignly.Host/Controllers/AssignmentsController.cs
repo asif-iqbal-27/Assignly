@@ -4,6 +4,8 @@ using Assignly.Application.Features.Assignments.Commands.PublishAssignment;
 using Assignly.Application.Features.Assignments.Commands.UpdateAssignment;
 using Assignly.Application.Features.Assignments.Queries.GetAssignmentById;
 using Assignly.Application.Features.Assignments.Queries.GetAssignments;
+using Assignly.Application.Features.Submissions.Commands.SubmitAssignment;
+using Assignly.Application.Features.Submissions.Queries.GetSubmissionsForAssignment;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +16,6 @@ namespace Assignly.Host.Controllers;
 public class AssignmentsController : BaseApiController
 {
     private readonly IMediator _mediator;
-
     public AssignmentsController(IMediator mediator)
     {
         _mediator = mediator;
@@ -65,6 +66,23 @@ public class AssignmentsController : BaseApiController
     public async Task<IActionResult> PublishAssignment(Guid id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new PublishAssignmentCommand(id, CurrentUserId), cancellationToken);
+        return HandleResult(result);
+    }
+
+    [Authorize(Roles = "Student")]
+    [HttpPost("{id:guid}/submissions")]
+    public async Task<IActionResult> SubmitAssignment(Guid id, [FromBody] SubmitAssignmentCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(command with { AssignmentId = id, StudentId = CurrentUserId }, cancellationToken);
+        return HandleResult(result);
+    }
+
+    [Authorize(Roles = "Teacher,Admin")]
+    [HttpGet("{id:guid}/submissions")]
+    public async Task<IActionResult> GetSubmissionsForAssignment(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(
+            new GetSubmissionsForAssignmentQuery(id, CurrentUserId, CurrentUserRole), cancellationToken);
         return HandleResult(result);
     }
 }

@@ -68,6 +68,7 @@ namespace Assignly.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     FullName = table.Column<string>(type: "text", nullable: false),
                     Role = table.Column<int>(type: "integer", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     ClassId = table.Column<Guid>(type: "uuid", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -241,7 +242,7 @@ namespace Assignly.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TeacherSubjectAssignments",
+                name: "ClassSubjectTeachers",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -250,15 +251,15 @@ namespace Assignly.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TeacherSubjectAssignments", x => x.Id);
+                    table.PrimaryKey("PK_ClassSubjectTeachers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TeacherSubjectAssignments_AspNetUsers_TeacherId",
+                        name: "FK_ClassSubjectTeachers_AspNetUsers_TeacherId",
                         column: x => x.TeacherId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_TeacherSubjectAssignments_Subjects_SubjectId",
+                        name: "FK_ClassSubjectTeachers_Subjects_SubjectId",
                         column: x => x.SubjectId,
                         principalTable: "Subjects",
                         principalColumn: "Id",
@@ -364,6 +365,17 @@ namespace Assignly.Infrastructure.Migrations
                 column: "SubjectId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ClassSubjectTeachers_SubjectId",
+                table: "ClassSubjectTeachers",
+                column: "SubjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ClassSubjectTeachers_TeacherId_SubjectId",
+                table: "ClassSubjectTeachers",
+                columns: new[] { "TeacherId", "SubjectId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Subjects_ClassId",
                 table: "Subjects",
                 column: "ClassId");
@@ -383,17 +395,6 @@ namespace Assignly.Infrastructure.Migrations
                 name: "IX_Submissions_StudentId",
                 table: "Submissions",
                 column: "StudentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TeacherSubjectAssignments_SubjectId",
-                table: "TeacherSubjectAssignments",
-                column: "SubjectId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TeacherSubjectAssignments_TeacherId_SubjectId",
-                table: "TeacherSubjectAssignments",
-                columns: new[] { "TeacherId", "SubjectId" },
-                unique: true);
         }
 
         /// <inheritdoc />
@@ -415,10 +416,10 @@ namespace Assignly.Infrastructure.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Submissions");
+                name: "ClassSubjectTeachers");
 
             migrationBuilder.DropTable(
-                name: "TeacherSubjectAssignments");
+                name: "Submissions");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
