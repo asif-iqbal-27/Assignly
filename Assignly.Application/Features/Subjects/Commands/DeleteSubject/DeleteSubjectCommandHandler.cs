@@ -9,16 +9,16 @@ namespace Assignly.Application.Features.Subjects.Commands.DeleteSubject;
 public sealed class DeleteSubjectCommandHandler : ICommandHandler<DeleteSubjectCommand, Deleted>
 {
     private readonly IRepository<Subject> _subjectRepository;
-    private readonly IRepository<TeacherSubjectAssignment> _teacherAssignmentRepository;
+    private readonly IRepository<ClassSubjectTeacher> _classSubjectTeacherRepository;
     private readonly IRepository<Assignment> _assignmentRepository;
 
     public DeleteSubjectCommandHandler(
         IRepository<Subject> subjectRepository,
-        IRepository<TeacherSubjectAssignment> teacherAssignmentRepository,
+        IRepository<ClassSubjectTeacher> classSubjectTeacherRepository,
         IRepository<Assignment> assignmentRepository)
     {
         _subjectRepository = subjectRepository;
-        _teacherAssignmentRepository = teacherAssignmentRepository;
+        _classSubjectTeacherRepository = classSubjectTeacherRepository;
         _assignmentRepository = assignmentRepository;
     }
 
@@ -30,12 +30,12 @@ public sealed class DeleteSubjectCommandHandler : ICommandHandler<DeleteSubjectC
             return SubjectErrors.NotFound(request.Id);
         }
 
-        var hasTeacherAssignments = await _teacherAssignmentRepository.Query()
+        var hasClassSubjectTeachers = await _classSubjectTeacherRepository.Query()
             .AnyAsync(t => t.SubjectId == request.Id, cancellationToken);
         var hasAssignments = await _assignmentRepository.Query()
             .AnyAsync(a => a.SubjectId == request.Id, cancellationToken);
 
-        if (hasTeacherAssignments || hasAssignments)
+        if (hasClassSubjectTeachers || hasAssignments)
         {
             return SubjectErrors.HasDependents;
         }

@@ -13,7 +13,7 @@ using FluentAssertions;
 namespace Assignly.Tests.Assignments;
 
 // Plan §7 rule 5: a teacher can only create/update/delete/publish for subjects they hold
-// via TeacherSubjectAssignment, even if they know the assignment's row id.
+// via ClassSubjectTeacher, even if they know the assignment's row id.
 public class TeacherOwnershipTests
 {
     private sealed record SeedResult(
@@ -37,7 +37,7 @@ public class TeacherOwnershipTests
         db.Users.Add(new ApplicationUser { Id = ownerTeacherId, UserName = "owner", FullName = "Owner Teacher", Role = RoleType.Teacher });
         db.Users.Add(new ApplicationUser { Id = otherTeacherId, UserName = "other", FullName = "Other Teacher", Role = RoleType.Teacher });
 
-        db.TeacherSubjectAssignments.Add(new TeacherSubjectAssignment
+        db.ClassSubjectTeachers.Add(new ClassSubjectTeacher
         {
             Id = Guid.NewGuid(),
             TeacherId = ownerTeacherId,
@@ -72,7 +72,7 @@ public class TeacherOwnershipTests
 
         var handler = new CreateAssignmentCommandHandler(
             new Repository<Assignment>(db),
-            new Repository<TeacherSubjectAssignment>(db));
+            new Repository<ClassSubjectTeacher>(db));
 
         var command = new CreateAssignmentCommand(
             "New Assignment", "Description", seed.SubjectId, seed.ClassId,
@@ -92,7 +92,7 @@ public class TeacherOwnershipTests
 
         var handler = new UpdateAssignmentCommandHandler(
             new Repository<Assignment>(db),
-            new Repository<TeacherSubjectAssignment>(db));
+            new Repository<ClassSubjectTeacher>(db));
 
         var command = new UpdateAssignmentCommand(
             seed.AssignmentId, "Updated Title", "Updated description",
@@ -112,7 +112,7 @@ public class TeacherOwnershipTests
 
         var handler = new DeleteAssignmentCommandHandler(
             new Repository<Assignment>(db),
-            new Repository<TeacherSubjectAssignment>(db),
+            new Repository<ClassSubjectTeacher>(db),
             new Repository<Submission>(db));
 
         var command = new DeleteAssignmentCommand(seed.AssignmentId, seed.OtherTeacherId);
@@ -131,7 +131,7 @@ public class TeacherOwnershipTests
 
         var handler = new PublishAssignmentCommandHandler(
             new Repository<Assignment>(db),
-            new Repository<TeacherSubjectAssignment>(db));
+            new Repository<ClassSubjectTeacher>(db));
 
         var command = new PublishAssignmentCommand(seed.AssignmentId, seed.OtherTeacherId);
 
@@ -149,7 +149,7 @@ public class TeacherOwnershipTests
 
         var handler = new PublishAssignmentCommandHandler(
             new Repository<Assignment>(db),
-            new Repository<TeacherSubjectAssignment>(db));
+            new Repository<ClassSubjectTeacher>(db));
 
         var command = new PublishAssignmentCommand(seed.AssignmentId, seed.OwnerTeacherId);
 

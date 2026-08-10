@@ -1,6 +1,6 @@
 namespace Assignly.Domain.Entities;
 
-public class TeacherSubjectAssignment
+public class ClassSubjectTeacher
 {
     public Guid Id { get; set; }
 

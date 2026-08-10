@@ -12,7 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Microsoft
 
     public DbSet<SchoolClass> Classes => Set<SchoolClass>();
     public DbSet<Subject> Subjects => Set<Subject>();
-    public DbSet<TeacherSubjectAssignment> TeacherSubjectAssignments => Set<TeacherSubjectAssignment>();
+    public DbSet<ClassSubjectTeacher> ClassSubjectTeachers => Set<ClassSubjectTeacher>();
     public DbSet<Assignment> Assignments => Set<Assignment>();
     public DbSet<Submission> Submissions => Set<Submission>();
 
@@ -45,7 +45,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Microsoft
         {
             entity.Property(s => s.Name).IsRequired().HasMaxLength(200);
 
-            entity.HasMany(s => s.TeacherAssignments)
+            entity.HasMany(s => s.ClassSubjectTeachers)
                 .WithOne(t => t.Subject)
                 .HasForeignKey(t => t.SubjectId)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -56,7 +56,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Microsoft
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        builder.Entity<TeacherSubjectAssignment>(entity =>
+        builder.Entity<ClassSubjectTeacher>(entity =>
         {
             entity.HasOne(t => t.Teacher)
                 .WithMany()

@@ -8,6 +8,6 @@ public class Subject
     public Guid ClassId { get; set; }
     public SchoolClass Class { get; set; } = null!;
 
-    public ICollection<TeacherSubjectAssignment> TeacherAssignments { get; set; } = new List<TeacherSubjectAssignment>();
+    public ICollection<ClassSubjectTeacher> ClassSubjectTeachers { get; set; } = new List<ClassSubjectTeacher>();
     public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
 }

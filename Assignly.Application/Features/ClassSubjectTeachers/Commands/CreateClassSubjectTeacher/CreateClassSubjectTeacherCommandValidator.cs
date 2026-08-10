@@ -4,11 +4,11 @@ using Assignly.Domain.Enums;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
-namespace Assignly.Application.Features.TeacherSubjects.Commands.CreateTeacherSubject;
+namespace Assignly.Application.Features.ClassSubjectTeachers.Commands.CreateClassSubjectTeacher;
 
-public sealed class CreateTeacherSubjectCommandValidator : AbstractValidator<CreateTeacherSubjectCommand>
+public sealed class CreateClassSubjectTeacherCommandValidator : AbstractValidator<CreateClassSubjectTeacherCommand>
 {
-    public CreateTeacherSubjectCommandValidator(
+    public CreateClassSubjectTeacherCommandValidator(
         IRepository<ApplicationUser> userRepository,
         IRepository<Subject> subjectRepository)
     {

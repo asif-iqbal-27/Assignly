@@ -10,7 +10,7 @@ public static class AssignmentErrors
 
     public static readonly Error NotOwner = Error.Forbidden(
         "Assignment.NotOwner",
-        "You are not assigned to this subject via a TeacherSubjectAssignment.");
+        "You are not assigned to this subject via a ClassSubjectTeacher.");
 
     public static readonly Error HasSubmissions = Error.Conflict(
         "Assignment.HasSubmissions",

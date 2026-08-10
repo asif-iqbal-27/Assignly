@@ -10,14 +10,14 @@ namespace Assignly.Application.Features.Assignments.Commands.UpdateAssignment;
 public sealed class UpdateAssignmentCommandHandler : ICommandHandler<UpdateAssignmentCommand, AssignmentDto>
 {
     private readonly IRepository<Assignment> _assignmentRepository;
-    private readonly IRepository<TeacherSubjectAssignment> _teacherSubjectAssignmentRepository;
+    private readonly IRepository<ClassSubjectTeacher> _classSubjectTeacherRepository;
 
     public UpdateAssignmentCommandHandler(
         IRepository<Assignment> assignmentRepository,
-        IRepository<TeacherSubjectAssignment> teacherSubjectAssignmentRepository)
+        IRepository<ClassSubjectTeacher> classSubjectTeacherRepository)
     {
         _assignmentRepository = assignmentRepository;
-        _teacherSubjectAssignmentRepository = teacherSubjectAssignmentRepository;
+        _classSubjectTeacherRepository = classSubjectTeacherRepository;
     }
 
     public async Task<ErrorOr<AssignmentDto>> Handle(UpdateAssignmentCommand request, CancellationToken cancellationToken)
@@ -28,7 +28,7 @@ public sealed class UpdateAssignmentCommandHandler : ICommandHandler<UpdateAssig
             return AssignmentErrors.NotFound(request.Id);
         }
 
-        var isOwner = await _teacherSubjectAssignmentRepository.Query()
+        var isOwner = await _classSubjectTeacherRepository.Query()
             .AnyAsync(t => t.TeacherId == request.TeacherId && t.SubjectId == assignment.SubjectId, cancellationToken);
 
         if (!isOwner)

@@ -96,7 +96,7 @@ public class StudentVisibilityTests
 
         var handler = new GetAssignmentsQueryHandler(
             new Repository<Assignment>(db),
-            new Repository<TeacherSubjectAssignment>(db));
+            new Repository<ClassSubjectTeacher>(db));
 
         var result = await handler.Handle(
             new GetAssignmentsQuery(Guid.NewGuid(), RoleType.Student, seed.ClassId),
@@ -114,7 +114,7 @@ public class StudentVisibilityTests
 
         var handler = new GetAssignmentByIdQueryHandler(
             new Repository<Assignment>(db),
-            new Repository<TeacherSubjectAssignment>(db));
+            new Repository<ClassSubjectTeacher>(db));
 
         var result = await handler.Handle(
             new GetAssignmentByIdQuery(seed.DraftId, Guid.NewGuid(), RoleType.Student, seed.ClassId),
@@ -132,7 +132,7 @@ public class StudentVisibilityTests
 
         var handler = new GetAssignmentByIdQueryHandler(
             new Repository<Assignment>(db),
-            new Repository<TeacherSubjectAssignment>(db));
+            new Repository<ClassSubjectTeacher>(db));
 
         var result = await handler.Handle(
             new GetAssignmentByIdQuery(seed.OtherClassPublishedId, Guid.NewGuid(), RoleType.Student, seed.ClassId),
@@ -150,7 +150,7 @@ public class StudentVisibilityTests
 
         var handler = new GetAssignmentByIdQueryHandler(
             new Repository<Assignment>(db),
-            new Repository<TeacherSubjectAssignment>(db));
+            new Repository<ClassSubjectTeacher>(db));
 
         var result = await handler.Handle(
             new GetAssignmentByIdQuery(seed.PublishedId, Guid.NewGuid(), RoleType.Student, seed.ClassId),

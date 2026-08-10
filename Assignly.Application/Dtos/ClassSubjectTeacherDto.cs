@@ -1,6 +1,6 @@
 namespace Assignly.Application.Dtos;
 
-public sealed class TeacherSubjectDto
+public sealed class ClassSubjectTeacherDto
 {
     public Guid Id { get; set; }
     public Guid TeacherId { get; set; }

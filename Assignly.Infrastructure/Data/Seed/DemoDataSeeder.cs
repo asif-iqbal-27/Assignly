@@ -33,9 +33,9 @@ public static class DemoDataSeeder
         var teacher2 = await SeedUserAsync(userManager, "teacher2", "teacher2@assignly.local", "Teacher123!", "Karim Ahmed", RoleType.Teacher, null);
         credentials.Add(("Teacher", "teacher2", "Teacher123!"));
 
-        await SeedTeacherAssignmentAsync(dbContext, teacher1.Id, mathematics.Id);
-        await SeedTeacherAssignmentAsync(dbContext, teacher1.Id, physics.Id);
-        await SeedTeacherAssignmentAsync(dbContext, teacher2.Id, english.Id);
+        await SeedClassSubjectTeacherAsync(dbContext, teacher1.Id, mathematics.Id);
+        await SeedClassSubjectTeacherAsync(dbContext, teacher1.Id, physics.Id);
+        await SeedClassSubjectTeacherAsync(dbContext, teacher2.Id, english.Id);
 
         var student1 = await SeedUserAsync(userManager, "student1", "student1@assignly.local", "Student123!", "Ayesha Rahman", RoleType.Student, class10.Id);
         credentials.Add(("Student", "student1", "Student123!"));
@@ -168,9 +168,9 @@ public static class DemoDataSeeder
         return subject;
     }
 
-    private static async Task SeedTeacherAssignmentAsync(ApplicationDbContext dbContext, Guid teacherId, Guid subjectId)
+    private static async Task SeedClassSubjectTeacherAsync(ApplicationDbContext dbContext, Guid teacherId, Guid subjectId)
     {
-        var exists = await dbContext.TeacherSubjectAssignments
+        var exists = await dbContext.ClassSubjectTeachers
             .AnyAsync(t => t.TeacherId == teacherId && t.SubjectId == subjectId);
 
         if (exists)
@@ -178,7 +178,7 @@ public static class DemoDataSeeder
             return;
         }
 
-        dbContext.TeacherSubjectAssignments.Add(new TeacherSubjectAssignment
+        dbContext.ClassSubjectTeachers.Add(new ClassSubjectTeacher
         {
             Id = Guid.NewGuid(),
             TeacherId = teacherId,

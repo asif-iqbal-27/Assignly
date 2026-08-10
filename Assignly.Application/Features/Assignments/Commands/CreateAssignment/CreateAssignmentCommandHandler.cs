@@ -11,19 +11,19 @@ namespace Assignly.Application.Features.Assignments.Commands.CreateAssignment;
 public sealed class CreateAssignmentCommandHandler : ICommandHandler<CreateAssignmentCommand, AssignmentDto>
 {
     private readonly IRepository<Assignment> _assignmentRepository;
-    private readonly IRepository<TeacherSubjectAssignment> _teacherSubjectAssignmentRepository;
+    private readonly IRepository<ClassSubjectTeacher> _classSubjectTeacherRepository;
 
     public CreateAssignmentCommandHandler(
         IRepository<Assignment> assignmentRepository,
-        IRepository<TeacherSubjectAssignment> teacherSubjectAssignmentRepository)
+        IRepository<ClassSubjectTeacher> classSubjectTeacherRepository)
     {
         _assignmentRepository = assignmentRepository;
-        _teacherSubjectAssignmentRepository = teacherSubjectAssignmentRepository;
+        _classSubjectTeacherRepository = classSubjectTeacherRepository;
     }
 
     public async Task<ErrorOr<AssignmentDto>> Handle(CreateAssignmentCommand request, CancellationToken cancellationToken)
     {
-        var isOwner = await _teacherSubjectAssignmentRepository.Query()
+        var isOwner = await _classSubjectTeacherRepository.Query()
             .AnyAsync(t => t.TeacherId == request.TeacherId && t.SubjectId == request.SubjectId, cancellationToken);
 
         if (!isOwner)

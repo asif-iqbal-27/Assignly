@@ -11,14 +11,14 @@ namespace Assignly.Application.Features.Assignments.Commands.PublishAssignment;
 public sealed class PublishAssignmentCommandHandler : ICommandHandler<PublishAssignmentCommand, AssignmentDto>
 {
     private readonly IRepository<Assignment> _assignmentRepository;
-    private readonly IRepository<TeacherSubjectAssignment> _teacherSubjectAssignmentRepository;
+    private readonly IRepository<ClassSubjectTeacher> _classSubjectTeacherRepository;
 
     public PublishAssignmentCommandHandler(
         IRepository<Assignment> assignmentRepository,
-        IRepository<TeacherSubjectAssignment> teacherSubjectAssignmentRepository)
+        IRepository<ClassSubjectTeacher> classSubjectTeacherRepository)
     {
         _assignmentRepository = assignmentRepository;
-        _teacherSubjectAssignmentRepository = teacherSubjectAssignmentRepository;
+        _classSubjectTeacherRepository = classSubjectTeacherRepository;
     }
 
     public async Task<ErrorOr<AssignmentDto>> Handle(PublishAssignmentCommand request, CancellationToken cancellationToken)
@@ -29,7 +29,7 @@ public sealed class PublishAssignmentCommandHandler : ICommandHandler<PublishAss
             return AssignmentErrors.NotFound(request.Id);
         }
 
-        var isOwner = await _teacherSubjectAssignmentRepository.Query()
+        var isOwner = await _classSubjectTeacherRepository.Query()
             .AnyAsync(t => t.TeacherId == request.TeacherId && t.SubjectId == assignment.SubjectId, cancellationToken);
 
         if (!isOwner)

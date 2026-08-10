@@ -11,14 +11,14 @@ namespace Assignly.Application.Features.Assignments.Queries.GetAssignments;
 public sealed class GetAssignmentsQueryHandler : IQueryHandler<GetAssignmentsQuery, List<AssignmentDto>>
 {
     private readonly IRepository<Assignment> _assignmentRepository;
-    private readonly IRepository<TeacherSubjectAssignment> _teacherSubjectAssignmentRepository;
+    private readonly IRepository<ClassSubjectTeacher> _classSubjectTeacherRepository;
 
     public GetAssignmentsQueryHandler(
         IRepository<Assignment> assignmentRepository,
-        IRepository<TeacherSubjectAssignment> teacherSubjectAssignmentRepository)
+        IRepository<ClassSubjectTeacher> classSubjectTeacherRepository)
     {
         _assignmentRepository = assignmentRepository;
-        _teacherSubjectAssignmentRepository = teacherSubjectAssignmentRepository;
+        _classSubjectTeacherRepository = classSubjectTeacherRepository;
     }
 
     public async Task<ErrorOr<List<AssignmentDto>>> Handle(GetAssignmentsQuery request, CancellationToken cancellationToken)
@@ -31,7 +31,7 @@ public sealed class GetAssignmentsQueryHandler : IQueryHandler<GetAssignmentsQue
                 break;
 
             case RoleType.Teacher:
-                var ownedSubjectIds = await _teacherSubjectAssignmentRepository.Query()
+                var ownedSubjectIds = await _classSubjectTeacherRepository.Query()
                     .Where(t => t.TeacherId == request.RequestingUserId)
                     .Select(t => t.SubjectId)
                     .ToListAsync(cancellationToken);

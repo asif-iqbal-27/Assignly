@@ -11,14 +11,14 @@ namespace Assignly.Application.Features.Assignments.Queries.GetAssignmentById;
 public sealed class GetAssignmentByIdQueryHandler : IQueryHandler<GetAssignmentByIdQuery, AssignmentDto>
 {
     private readonly IRepository<Assignment> _assignmentRepository;
-    private readonly IRepository<TeacherSubjectAssignment> _teacherSubjectAssignmentRepository;
+    private readonly IRepository<ClassSubjectTeacher> _classSubjectTeacherRepository;
 
     public GetAssignmentByIdQueryHandler(
         IRepository<Assignment> assignmentRepository,
-        IRepository<TeacherSubjectAssignment> teacherSubjectAssignmentRepository)
+        IRepository<ClassSubjectTeacher> classSubjectTeacherRepository)
     {
         _assignmentRepository = assignmentRepository;
-        _teacherSubjectAssignmentRepository = teacherSubjectAssignmentRepository;
+        _classSubjectTeacherRepository = classSubjectTeacherRepository;
     }
 
     public async Task<ErrorOr<AssignmentDto>> Handle(GetAssignmentByIdQuery request, CancellationToken cancellationToken)
@@ -54,7 +54,7 @@ public sealed class GetAssignmentByIdQueryHandler : IQueryHandler<GetAssignmentB
         var visible = request.RequestingUserRole switch
         {
             RoleType.Admin => true,
-            RoleType.Teacher => await _teacherSubjectAssignmentRepository.Query()
+            RoleType.Teacher => await _classSubjectTeacherRepository.Query()
                 .AnyAsync(t => t.TeacherId == request.RequestingUserId && t.SubjectId == assignment.SubjectId, cancellationToken),
             RoleType.Student => assignment.ClassId == request.RequestingUserClassId &&
                                  assignment.Status == nameof(AssignmentStatus.Published),

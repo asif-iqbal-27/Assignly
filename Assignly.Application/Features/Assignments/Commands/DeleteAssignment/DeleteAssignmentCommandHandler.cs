@@ -9,16 +9,16 @@ namespace Assignly.Application.Features.Assignments.Commands.DeleteAssignment;
 public sealed class DeleteAssignmentCommandHandler : ICommandHandler<DeleteAssignmentCommand, Deleted>
 {
     private readonly IRepository<Assignment> _assignmentRepository;
-    private readonly IRepository<TeacherSubjectAssignment> _teacherSubjectAssignmentRepository;
+    private readonly IRepository<ClassSubjectTeacher> _classSubjectTeacherRepository;
     private readonly IRepository<Submission> _submissionRepository;
 
     public DeleteAssignmentCommandHandler(
         IRepository<Assignment> assignmentRepository,
-        IRepository<TeacherSubjectAssignment> teacherSubjectAssignmentRepository,
+        IRepository<ClassSubjectTeacher> classSubjectTeacherRepository,
         IRepository<Submission> submissionRepository)
     {
         _assignmentRepository = assignmentRepository;
-        _teacherSubjectAssignmentRepository = teacherSubjectAssignmentRepository;
+        _classSubjectTeacherRepository = classSubjectTeacherRepository;
         _submissionRepository = submissionRepository;
     }
 
@@ -30,7 +30,7 @@ public sealed class DeleteAssignmentCommandHandler : ICommandHandler<DeleteAssig
             return AssignmentErrors.NotFound(request.Id);
         }
 
-        var isOwner = await _teacherSubjectAssignmentRepository.Query()
+        var isOwner = await _classSubjectTeacherRepository.Query()
             .AnyAsync(t => t.TeacherId == request.TeacherId && t.SubjectId == assignment.SubjectId, cancellationToken);
 
         if (!isOwner)
