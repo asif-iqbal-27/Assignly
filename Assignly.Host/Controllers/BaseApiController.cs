@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Assignly.Domain.Enums;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,14 @@ public abstract class BaseApiController : ControllerBase
 
     protected Guid CurrentUserId =>
         UserIdOrNull ?? throw new UnauthorizedAccessException("Missing or invalid user id claim.");
+
+    protected RoleType CurrentUserRole =>
+        Enum.TryParse<RoleType>(User.FindFirstValue(ClaimTypes.Role), out var role)
+            ? role
+            : throw new UnauthorizedAccessException("Missing or invalid role claim.");
+
+    protected Guid? CurrentUserClassId =>
+        Guid.TryParse(User.FindFirstValue("class_id"), out var classId) ? classId : null;
 
     protected IActionResult HandleResult<T>(ErrorOr<T> result)
     {

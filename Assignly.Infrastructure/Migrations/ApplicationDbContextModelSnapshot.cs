@@ -17,7 +17,7 @@ namespace Assignly.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -48,6 +48,9 @@ namespace Assignly.Infrastructure.Migrations
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -155,7 +158,7 @@ namespace Assignly.Infrastructure.Migrations
                     b.ToTable("Assignments");
                 });
 
-            modelBuilder.Entity("Assignly.Domain.Entities.Class", b =>
+            modelBuilder.Entity("Assignly.Domain.Entities.SchoolClass", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -407,7 +410,7 @@ namespace Assignly.Infrastructure.Migrations
 
             modelBuilder.Entity("Assignly.Domain.Entities.ApplicationUser", b =>
                 {
-                    b.HasOne("Assignly.Domain.Entities.Class", "Class")
+                    b.HasOne("Assignly.Domain.Entities.SchoolClass", "Class")
                         .WithMany("Students")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -417,7 +420,7 @@ namespace Assignly.Infrastructure.Migrations
 
             modelBuilder.Entity("Assignly.Domain.Entities.Assignment", b =>
                 {
-                    b.HasOne("Assignly.Domain.Entities.Class", "Class")
+                    b.HasOne("Assignly.Domain.Entities.SchoolClass", "Class")
                         .WithMany("Assignments")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -444,7 +447,7 @@ namespace Assignly.Infrastructure.Migrations
 
             modelBuilder.Entity("Assignly.Domain.Entities.Subject", b =>
                 {
-                    b.HasOne("Assignly.Domain.Entities.Class", "Class")
+                    b.HasOne("Assignly.Domain.Entities.SchoolClass", "Class")
                         .WithMany("Subjects")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -554,7 +557,7 @@ namespace Assignly.Infrastructure.Migrations
                     b.Navigation("Submissions");
                 });
 
-            modelBuilder.Entity("Assignly.Domain.Entities.Class", b =>
+            modelBuilder.Entity("Assignly.Domain.Entities.SchoolClass", b =>
                 {
                     b.Navigation("Assignments");
 

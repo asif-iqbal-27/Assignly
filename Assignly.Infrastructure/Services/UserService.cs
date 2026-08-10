@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Assignly.Application.Interfaces;
 using Assignly.Domain.Entities;
+using Assignly.Domain.Enums;
 using ErrorOr;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -36,6 +37,11 @@ public class UserService : IUserService
             new(ClaimTypes.Name, user.UserName ?? string.Empty),
             new(ClaimTypes.Role, user.Role.Value.ToString())
         };
+
+        if (user.Role == RoleType.Student && user.ClassId.HasValue)
+        {
+            claims.Add(new Claim("class_id", user.ClassId.Value.ToString()));
+        }
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {

@@ -3,4 +3,5 @@
   <Project Path="Assignly.Domain/Assignly.Domain.csproj" />
   <Project Path="Assignly.Host/Assignly.Host.csproj" />
   <Project Path="Assignly.Infrastructure/Assignly.Infrastructure.csproj" />
+  <Project Path="Assignly.Tests/Assignly.Tests.csproj" />
 </Solution>

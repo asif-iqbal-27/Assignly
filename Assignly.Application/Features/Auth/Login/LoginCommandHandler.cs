@@ -37,6 +37,11 @@ public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, AuthResp
             return Error.Unauthorized(description: "Invalid username or password.");
         }
 
+        if (!user.IsActive)
+        {
+            return Error.Unauthorized(description: "This account has been deactivated.");
+        }
+
         if (user.Role is null)
         {
             return Error.Unauthorized(description: "User has no assigned role.");

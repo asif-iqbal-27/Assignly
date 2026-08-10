@@ -1,12 +1,13 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Assignly.Application.Core.Behaviors;
 using Assignly.Application.Features.Auth.Login;
 using Assignly.Application.Interfaces;
 using Assignly.Domain.Entities;
-using Assignly.Domain.Enums;
 using Assignly.Host.Middleware;
 using Assignly.Infrastructure.Data;
 using Assignly.Infrastructure.Data.Repositories;
+using Assignly.Infrastructure.Data.Seed;
 using Assignly.Infrastructure.Services;
 using FluentValidation;
 using MediatR;
@@ -45,7 +46,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -61,7 +67,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(LoginCommand).Assembly));
@@ -72,40 +79,13 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+if (app.Environment.IsDevelopment())
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
 
-    if (app.Environment.IsDevelopment())
-    {
-        await db.Database.MigrateAsync();
-    }
-
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    foreach (var roleName in new[] { "Admin", "Teacher", "Student" })
-    {
-        if (!await roleManager.RoleExistsAsync(roleName))
-        {
-            await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
-        }
-    }
-    var admin = await userManager.FindByNameAsync("admin");
-    if (admin is null)
-    {
-        admin = new ApplicationUser
-        {
-            UserName = "admin",
-            Email = "admin@assignly.local",
-            FullName = "System Administrator",
-            Role = RoleType.Admin
-        };
-        var result = await userManager.CreateAsync(admin, "Admin123!");
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(admin, "Admin");
-        }
-    }
+    await DemoDataSeeder.SeedAsync(scope.ServiceProvider);
 }
 
 app.UseMiddleware<GlobalExceptionHandler>();
