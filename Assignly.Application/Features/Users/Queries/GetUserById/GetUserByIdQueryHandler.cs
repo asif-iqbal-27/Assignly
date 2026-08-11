@@ -18,20 +18,21 @@ public sealed class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, Us
 
     public async Task<ErrorOr<UserDto>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.Query()
-            .Where(u => u.Id == request.Id)
-            .Select(u => new UserDto
-            {
-                Id = u.Id,
-                UserName = u.UserName ?? string.Empty,
-                Email = u.Email ?? string.Empty,
-                FullName = u.FullName,
-                Role = u.Role != null ? u.Role.ToString()! : string.Empty,
-                ClassId = u.ClassId,
-                ClassName = u.Class != null ? u.Class.Name : null,
-                IsActive = u.IsActive
-            })
-            .FirstOrDefaultAsync(cancellationToken);
+        var query = _userRepository.Query();
+        var filteredQuery = query.Where(u => u.Id == request.Id);
+        var projectedQuery = filteredQuery.Select(u => new UserDto
+        {
+            Id = u.Id,
+            UserName = u.UserName ?? string.Empty,
+            Email = u.Email ?? string.Empty,
+            FullName = u.FullName,
+            Role = u.Role != null ? u.Role.ToString()! : string.Empty,
+            ClassId = u.ClassId,
+            ClassName = u.Class != null ? u.Class.Name : null,
+            IsActive = u.IsActive
+        });
+
+        var user = await projectedQuery.FirstOrDefaultAsync(cancellationToken);
 
         return user is null ? UserErrors.NotFound(request.Id) : user;
     }

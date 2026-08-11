@@ -23,15 +23,17 @@ public sealed class GetMySubmissionsQueryHandler : IQueryHandler<GetMySubmission
             .GroupBy(s => s.AssignmentId)
             .Select(g => new { AssignmentId = g.Key, MaxAttempt = g.Max(s => s.AttemptNumber) });
 
-        var submissions = await (
+        var latestSubmissionsQuery =
             from s in _submissionRepository.Query()
             join m in latestAttempts
                 on new { s.AssignmentId, s.AttemptNumber } equals new { m.AssignmentId, AttemptNumber = m.MaxAttempt }
             where s.StudentId == request.StudentId
-            select s)
-            .OrderByDescending(s => s.SubmittedAt)
-            .Select(SubmissionMappings.ToDto)
-            .ToListAsync(cancellationToken);
+            select s;
+
+        var orderedQuery = latestSubmissionsQuery.OrderByDescending(s => s.SubmittedAt);
+        var projectedQuery = orderedQuery.Select(SubmissionMappings.ToDto);
+
+        var submissions = await projectedQuery.ToListAsync(cancellationToken);
 
         return submissions;
     }

@@ -49,15 +49,17 @@ public sealed class GetSubmissionsForAssignmentQueryHandler : IQueryHandler<GetS
             .GroupBy(s => s.StudentId)
             .Select(g => new { StudentId = g.Key, MaxAttempt = g.Max(s => s.AttemptNumber) });
 
-        var submissions = await (
+        var latestSubmissionsQuery =
             from s in _submissionRepository.Query()
             join m in latestAttempts
                 on new { s.StudentId, s.AttemptNumber } equals new { m.StudentId, AttemptNumber = m.MaxAttempt }
             where s.AssignmentId == request.AssignmentId
-            select s)
-            .OrderBy(s => s.Student.FullName)
-            .Select(SubmissionMappings.ToDto)
-            .ToListAsync(cancellationToken);
+            select s;
+
+        var orderedQuery = latestSubmissionsQuery.OrderBy(s => s.Student.FullName);
+        var projectedQuery = orderedQuery.Select(SubmissionMappings.ToDto);
+
+        var submissions = await projectedQuery.ToListAsync(cancellationToken);
 
         return submissions;
     }

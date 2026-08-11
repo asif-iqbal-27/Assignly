@@ -18,16 +18,17 @@ public sealed class GetSubjectsQueryHandler : IQueryHandler<GetSubjectsQuery, Li
 
     public async Task<ErrorOr<List<SubjectDto>>> Handle(GetSubjectsQuery request, CancellationToken cancellationToken)
     {
-        var subjects = await _subjectRepository.Query()
-            .OrderBy(s => s.Name)
-            .Select(s => new SubjectDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                ClassId = s.ClassId,
-                ClassName = s.Class.Name
-            })
-            .ToListAsync(cancellationToken);
+        var query = _subjectRepository.Query();
+        var orderedQuery = query.OrderBy(s => s.Name);
+        var projectedQuery = orderedQuery.Select(s => new SubjectDto
+        {
+            Id = s.Id,
+            Name = s.Name,
+            ClassId = s.ClassId,
+            ClassName = s.Class.Name
+        });
+
+        var subjects = await projectedQuery.ToListAsync(cancellationToken);
 
         return subjects;
     }

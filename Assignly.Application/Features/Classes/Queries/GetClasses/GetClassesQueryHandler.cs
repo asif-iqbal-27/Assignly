@@ -18,16 +18,17 @@ public sealed class GetClassesQueryHandler : IQueryHandler<GetClassesQuery, List
 
     public async Task<ErrorOr<List<ClassDto>>> Handle(GetClassesQuery request, CancellationToken cancellationToken)
     {
-        var classes = await _classRepository.Query()
-            .OrderBy(c => c.Name)
-            .Select(c => new ClassDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Section = c.Section,
-                Description = c.Description
-            })
-            .ToListAsync(cancellationToken);
+        var query = _classRepository.Query();
+        var orderedQuery = query.OrderBy(c => c.Name);
+        var projectedQuery = orderedQuery.Select(c => new ClassDto
+        {
+            Id = c.Id,
+            Name = c.Name,
+            Section = c.Section,
+            Description = c.Description
+        });
+
+        var classes = await projectedQuery.ToListAsync(cancellationToken);
 
         return classes;
     }

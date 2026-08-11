@@ -19,18 +19,19 @@ public sealed class GetClassSubjectTeachersByTeacherQueryHandler
 
     public async Task<ErrorOr<List<ClassSubjectTeacherDto>>> Handle(GetClassSubjectTeachersByTeacherQuery request, CancellationToken cancellationToken)
     {
-        var classSubjectTeachers = await _classSubjectTeacherRepository.Query()
-            .Where(t => t.TeacherId == request.TeacherId)
-            .OrderBy(t => t.Subject.Name)
-            .Select(t => new ClassSubjectTeacherDto
-            {
-                Id = t.Id,
-                TeacherId = t.TeacherId,
-                TeacherName = t.Teacher.FullName,
-                SubjectId = t.SubjectId,
-                SubjectName = t.Subject.Name
-            })
-            .ToListAsync(cancellationToken);
+        var query = _classSubjectTeacherRepository.Query();
+        var filteredQuery = query.Where(t => t.TeacherId == request.TeacherId);
+        var orderedQuery = filteredQuery.OrderBy(t => t.Subject.Name);
+        var projectedQuery = orderedQuery.Select(t => new ClassSubjectTeacherDto
+        {
+            Id = t.Id,
+            TeacherId = t.TeacherId,
+            TeacherName = t.Teacher.FullName,
+            SubjectId = t.SubjectId,
+            SubjectName = t.Subject.Name
+        });
+
+        var classSubjectTeachers = await projectedQuery.ToListAsync(cancellationToken);
 
         return classSubjectTeachers;
     }

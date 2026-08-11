@@ -52,27 +52,28 @@ public sealed class CreateAssignmentCommandHandler : ICommandHandler<CreateAssig
         await _assignmentRepository.AddAsync(assignment, cancellationToken);
         await _assignmentRepository.SaveChangesAsync(cancellationToken);
 
-        return await _assignmentRepository.Query()
-            .Where(a => a.Id == assignment.Id)
-            .Select(a => new AssignmentDto
-            {
-                Id = a.Id,
-                Title = a.Title,
-                Description = a.Description,
-                SubjectId = a.SubjectId,
-                SubjectName = a.Subject.Name,
-                ClassId = a.ClassId,
-                ClassName = a.Class.Name,
-                CreatedByTeacherId = a.CreatedByTeacherId,
-                CreatedByTeacherName = a.CreatedByTeacher.FullName,
-                Deadline = a.Deadline,
-                MaxMarks = a.MaxMarks,
-                Status = a.Status.ToString(),
-                AllowLateSubmission = a.AllowLateSubmission,
-                AllowResubmission = a.AllowResubmission,
-                CreatedAt = a.CreatedAt,
-                UpdatedAt = a.UpdatedAt
-            })
-            .FirstAsync(cancellationToken);
+        var query = _assignmentRepository.Query();
+        var filteredQuery = query.Where(a => a.Id == assignment.Id);
+        var projectedQuery = filteredQuery.Select(a => new AssignmentDto
+        {
+            Id = a.Id,
+            Title = a.Title,
+            Description = a.Description,
+            SubjectId = a.SubjectId,
+            SubjectName = a.Subject.Name,
+            ClassId = a.ClassId,
+            ClassName = a.Class.Name,
+            CreatedByTeacherId = a.CreatedByTeacherId,
+            CreatedByTeacherName = a.CreatedByTeacher.FullName,
+            Deadline = a.Deadline,
+            MaxMarks = a.MaxMarks,
+            Status = a.Status.ToString(),
+            AllowLateSubmission = a.AllowLateSubmission,
+            AllowResubmission = a.AllowResubmission,
+            CreatedAt = a.CreatedAt,
+            UpdatedAt = a.UpdatedAt
+        });
+
+        return await projectedQuery.FirstAsync(cancellationToken);
     }
 }

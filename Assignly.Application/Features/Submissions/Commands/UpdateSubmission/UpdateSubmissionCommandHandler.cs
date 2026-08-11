@@ -66,9 +66,10 @@ public sealed class UpdateSubmissionCommandHandler : ICommandHandler<UpdateSubmi
         await _submissionRepository.AddAsync(newSubmission, cancellationToken);
         await _submissionRepository.SaveChangesAsync(cancellationToken);
 
-        return await _submissionRepository.Query()
-            .Where(s => s.Id == newSubmission.Id)
-            .Select(SubmissionMappings.ToDto)
-            .FirstAsync(cancellationToken);
+        var query = _submissionRepository.Query();
+        var filteredQuery = query.Where(s => s.Id == newSubmission.Id);
+        var projectedQuery = filteredQuery.Select(SubmissionMappings.ToDto);
+
+        return await projectedQuery.FirstAsync(cancellationToken);
     }
 }

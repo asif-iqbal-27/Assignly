@@ -23,10 +23,11 @@ public sealed class GetSubmissionByIdQueryHandler : IQueryHandler<GetSubmissionB
 
     public async Task<ErrorOr<SubmissionDto>> Handle(GetSubmissionByIdQuery request, CancellationToken cancellationToken)
     {
-        var summary = await _submissionRepository.Query()
-            .Where(s => s.Id == request.Id)
-            .Select(s => new { s.StudentId, SubjectId = s.Assignment.SubjectId })
-            .FirstOrDefaultAsync(cancellationToken);
+        var query = _submissionRepository.Query();
+        var filteredQuery = query.Where(s => s.Id == request.Id);
+        var summaryQuery = filteredQuery.Select(s => new { s.StudentId, SubjectId = s.Assignment.SubjectId });
+
+        var summary = await summaryQuery.FirstOrDefaultAsync(cancellationToken);
 
         if (summary is null)
         {
@@ -50,9 +51,9 @@ public sealed class GetSubmissionByIdQueryHandler : IQueryHandler<GetSubmissionB
             return SubmissionErrors.NotFound(request.Id);
         }
 
-        return await _submissionRepository.Query()
-            .Where(s => s.Id == request.Id)
-            .Select(SubmissionMappings.ToDto)
-            .FirstAsync(cancellationToken);
+        var dtoFilteredQuery = query.Where(s => s.Id == request.Id);
+        var dtoProjectedQuery = dtoFilteredQuery.Select(SubmissionMappings.ToDto);
+
+        return await dtoProjectedQuery.FirstAsync(cancellationToken);
     }
 }

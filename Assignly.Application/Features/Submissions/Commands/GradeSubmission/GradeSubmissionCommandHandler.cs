@@ -59,9 +59,10 @@ public sealed class GradeSubmissionCommandHandler : ICommandHandler<GradeSubmiss
 
         await _submissionRepository.SaveChangesAsync(cancellationToken);
 
-        return await _submissionRepository.Query()
-            .Where(s => s.Id == submission.Id)
-            .Select(SubmissionMappings.ToDto)
-            .FirstAsync(cancellationToken);
+        var query = _submissionRepository.Query();
+        var filteredQuery = query.Where(s => s.Id == submission.Id);
+        var projectedQuery = filteredQuery.Select(SubmissionMappings.ToDto);
+
+        return await projectedQuery.FirstAsync(cancellationToken);
     }
 }

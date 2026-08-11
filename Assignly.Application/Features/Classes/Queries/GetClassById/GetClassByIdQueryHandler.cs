@@ -18,16 +18,17 @@ public sealed class GetClassByIdQueryHandler : IQueryHandler<GetClassByIdQuery, 
 
     public async Task<ErrorOr<ClassDto>> Handle(GetClassByIdQuery request, CancellationToken cancellationToken)
     {
-        var schoolClass = await _classRepository.Query()
-            .Where(c => c.Id == request.Id)
-            .Select(c => new ClassDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Section = c.Section,
-                Description = c.Description
-            })
-            .FirstOrDefaultAsync(cancellationToken);
+        var query = _classRepository.Query();
+        var filteredQuery = query.Where(c => c.Id == request.Id);
+        var projectedQuery = filteredQuery.Select(c => new ClassDto
+        {
+            Id = c.Id,
+            Name = c.Name,
+            Section = c.Section,
+            Description = c.Description
+        });
+
+        var schoolClass = await projectedQuery.FirstOrDefaultAsync(cancellationToken);
 
         return schoolClass is null ? ClassErrors.NotFound(request.Id) : schoolClass;
     }
