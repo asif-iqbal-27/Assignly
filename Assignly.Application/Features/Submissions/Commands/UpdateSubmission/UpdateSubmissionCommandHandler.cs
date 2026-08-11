@@ -40,8 +40,7 @@ public sealed class UpdateSubmissionCommandHandler : ICommandHandler<UpdateSubmi
             return SubmissionErrors.ResubmissionNotAllowed;
         }
 
-        // AllowLateSubmission never extends this window — resubmission always requires
-        // the deadline to still be in the future, independent of that flag.
+        
         if (DateTime.UtcNow > assignment.Deadline)
         {
             return SubmissionErrors.ResubmissionWindowClosed;

@@ -33,10 +33,7 @@ public sealed class GetSubmissionByIdQueryHandler : IQueryHandler<GetSubmissionB
         {
             return SubmissionErrors.NotFound(request.Id);
         }
-
-        // Same NotFound-for-everything policy as GetAssignmentById — a student (or a
-        // teacher not holding the subject) must not be able to distinguish "doesn't
-        // exist" from "exists but isn't yours" by probing ids.
+       
         var visible = request.RequestingUserRole switch
         {
             RoleType.Admin => true,

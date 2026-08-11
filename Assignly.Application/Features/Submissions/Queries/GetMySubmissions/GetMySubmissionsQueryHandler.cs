@@ -18,23 +18,17 @@ public sealed class GetMySubmissionsQueryHandler : IQueryHandler<GetMySubmission
 
     public async Task<ErrorOr<List<SubmissionDto>>> Handle(GetMySubmissionsQuery request, CancellationToken cancellationToken)
     {
-        var latestAttempts = _submissionRepository.Query()
-            .Where(s => s.StudentId == request.StudentId)
-            .GroupBy(s => s.AssignmentId)
-            .Select(g => new { AssignmentId = g.Key, MaxAttempt = g.Max(s => s.AttemptNumber) });
+        var mySubmissionsQuery = _submissionRepository.Query()
+            .Where(s => s.StudentId == request.StudentId);
 
-        var latestSubmissionsQuery =
-            from s in _submissionRepository.Query()
-            join m in latestAttempts
-                on new { s.AssignmentId, s.AttemptNumber } equals new { m.AssignmentId, AttemptNumber = m.MaxAttempt }
-            where s.StudentId == request.StudentId
-            select s;
+        var latestSubmissionsQuery = mySubmissionsQuery.Where(s => !mySubmissionsQuery.Any(other =>
+            other.AssignmentId == s.AssignmentId && other.AttemptNumber > s.AttemptNumber));
 
         var orderedQuery = latestSubmissionsQuery.OrderByDescending(s => s.SubmittedAt);
         var projectedQuery = orderedQuery.Select(SubmissionMappings.ToDto);
 
         var submissions = await projectedQuery.ToListAsync(cancellationToken);
-
+        
         return submissions;
     }
 }
