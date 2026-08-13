@@ -7,6 +7,15 @@ assigned to, and grades student submissions. A Student sees published assignment
 their own class, submits work, and can resubmit if the assignment allows it and the
 deadline has not passed.
 
+## Main features
+
+- JWT login, with a role (Admin/Teacher/Student) baked into the token
+- Admin: manage classes, subjects, user accounts, and teacher-to-subject assignments
+- Teacher: create, update, publish, and delete assignments for subjects they teach
+- Student: browse published assignments for their class, submit, and resubmit
+- Teacher: view and grade submissions, with marks bounded to the assignment's max
+- Resubmission history is kept — every attempt is a row, not an overwrite
+
 ## Tech stack
 
 | Layer    | Stack |
@@ -18,14 +27,15 @@ deadline has not passed.
 
 ## Demo credentials
 
-| Role    | Username   | Password     |
-|---------|------------|--------------|
-| Admin   | `admin`    | `Admin123!`  |
-| Teacher | `teacher1` | `Teacher123!`|
-| Student | `student1` | `Student123!`|
+| Role    | Username   | Email                       | Password      |
+|---------|------------|------------------------------|---------------|
+| Admin   | `admin`    | `admin@assignly.local`      | `Admin123!`   |
+| Teacher | `teacher1` | `teacher1@assignly.local`   | `Teacher123!` |
+| Student | `student1` | `student1@assignly.local`   | `Student123!` |
 
-More teacher (`teacher2`) and student (`student2`–`student4`) accounts are seeded too,
-all with the same pattern of password.
+Login accepts either the username or the email — either one works with the matching
+password. More teacher (`teacher2`) and student (`student2`–`student4`) accounts are
+seeded too, all following the same username/email/password pattern.
 
 ## Setup
 
@@ -36,6 +46,11 @@ docker compose up -d
 ```
 
 Starts PostgreSQL 16 in a container named `assignly-db`, listening on `localhost:5433`.
+
+**Database setup:** you do not need to create any tables yourself. When the backend
+starts in the `Development` environment, it applies the committed EF Core migrations
+and seeds the demo data automatically — a database with no schema at all is the
+expected starting point.
 
 ### 2. Backend
 
@@ -62,6 +77,42 @@ npm run dev
 ```
 
 Runs on `http://localhost:3000` and talks to the backend at the URL in `.env.local`.
+
+The real config files you just created (`Assignly.Host/appsettings.json`,
+`frontend/.env.local`) are gitignored — only the `.Example`/`.example` placeholder
+versions are committed.
+
+## Database migrations
+
+This section is for development only — an evaluator running the project as described
+above does not need any of this. Migrations are already committed and apply
+automatically on startup in `Development`, so there is nothing to run.
+
+If you're changing the schema:
+
+Install the EF Core tool, if you don't have it:
+
+```bash
+dotnet tool install --global dotnet-ef
+```
+
+Create a new migration after changing an entity:
+
+```bash
+dotnet ef migrations add <Name> --project Assignly.Infrastructure --startup-project Assignly.Host
+```
+
+Apply migrations by hand, instead of waiting for the app to do it on startup:
+
+```bash
+dotnet ef database update --project Assignly.Infrastructure --startup-project Assignly.Host
+```
+
+Reset to a clean database:
+
+```bash
+docker compose down -v && docker compose up -d
+```
 
 ## Running the tests
 

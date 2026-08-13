@@ -25,7 +25,9 @@ public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, AuthResp
 
     public async Task<ErrorOr<AuthResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByNameAsync(request.UserName);
+        var user = await _userManager.FindByNameAsync(request.UserName)
+            ?? await _userManager.FindByEmailAsync(request.UserName);
+
         if (user is null)
         {
             return Error.Unauthorized(description: "Invalid username or password.");
