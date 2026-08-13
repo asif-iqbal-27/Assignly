@@ -29,8 +29,7 @@ public sealed class SubmitAssignmentCommandHandler : ICommandHandler<SubmitAssig
         var assignment = await _assignmentRepository.GetByIdAsync(request.AssignmentId, cancellationToken);
         var student = await _userRepository.GetByIdAsync(request.StudentId, cancellationToken);
 
-        // Students may only see/act on Published assignments in their own class — same
-        // NotFound-for-everything policy as GetAssignmentById, so ids aren't enumerable.
+        
         if (assignment is null || student is null ||
             assignment.Status != AssignmentStatus.Published ||
             assignment.ClassId != student.ClassId)

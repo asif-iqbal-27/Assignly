@@ -44,17 +44,11 @@ public sealed class GetSubmissionsForAssignmentQueryHandler : IQueryHandler<GetS
             }
         }
 
-        var latestAttempts = _submissionRepository.Query()
-            .Where(s => s.AssignmentId == request.AssignmentId)
-            .GroupBy(s => s.StudentId)
-            .Select(g => new { StudentId = g.Key, MaxAttempt = g.Max(s => s.AttemptNumber) });
+        var assignmentSubmissionsQuery = _submissionRepository.Query()
+            .Where(s => s.AssignmentId == request.AssignmentId);
 
-        var latestSubmissionsQuery =
-            from s in _submissionRepository.Query()
-            join m in latestAttempts
-                on new { s.StudentId, s.AttemptNumber } equals new { m.StudentId, AttemptNumber = m.MaxAttempt }
-            where s.AssignmentId == request.AssignmentId
-            select s;
+        var latestSubmissionsQuery = assignmentSubmissionsQuery.Where(s => !assignmentSubmissionsQuery.Any(other =>
+            other.StudentId == s.StudentId && other.AttemptNumber > s.AttemptNumber));
 
         var orderedQuery = latestSubmissionsQuery.OrderBy(s => s.Student.FullName);
         var projectedQuery = orderedQuery.Select(SubmissionMappings.ToDto);
